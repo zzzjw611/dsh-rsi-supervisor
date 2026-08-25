@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="A governed recursive self-improvement control plane for DeepSeek Harness."
+    />
+    <title>LoopGraph · Recursive Control Plane</title>
+    <link rel="stylesheet" href="/assets/app.css" />
+    <script defer src="/assets/app.js"></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="LoopGraph home">
+          <span class="brand-mark" aria-hidden="true">◈</span>
+          <span>LOOPGRAPH <span class="brand-muted">/ CONTROL PLANE</span></span>
+        </a>
+        <div class="topbar-actions">
+          <button class="tour-launch" id="tour-launch" type="button">✦ Demo guide</button>
+          <span class="environment-chip" id="environment-chip">CHECKING HARNESS</span>
+          <button class="icon-button" id="refresh-button" title="Refresh current experiment">↻</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div>
+            <p class="eyebrow">GOVERNED RECURSIVE SELF-IMPROVEMENT</p>
+            <h1>A frozen agent.<br /><span>An evolving scaffold.</span></h1>
+            <p class="hero-copy">
+              DeepSeek Harness improves its own failure-recovery skill. Every candidate is
+              independently evaluated, held for human review, and durably versioned.
+            </p>
+          </div>
+          <aside class="governance-card">
+            <span class="eyebrow">TRUST BOUNDARY</span>
+            <div class="boundary-row"><span>Model weights</span><span>FROZEN</span></div>
+            <div class="boundary-row"><span>Outer supervisor</span><span>FROZEN</span></div>
+            <div class="boundary-row"><span>Holdout evaluator</span><span>FROZEN</span></div>
+            <div class="boundary-row boundary-editable"><span>Recovery scaffold</span><span>EVOLVING</span></div>
+          </aside>
+        </section>
+
+        <section class="toolbar card">
+          <div class="run-context">
+            <span class="status-indicator" id="status-indicator"></span>
+            <div>
+              <span id="run-status" class="run-status">READY TO START</span>
+              <span id="run-id" class="run-id">No experiment selected</span>
+            </div>
+          </div>
+          <div class="toolbar-controls">
+            <label class="select-label" for="mode-select">HARNESS</label>
+            <select id="mode-select">
+              <option value="replay">Deterministic replay</option>
+              <option value="dsh">Live DeepSeek Harness</option>
+            </select>
+            <button id="new-run" class="button button-primary">New experiment</button>
+          </div>
+        </section>
+
+        <div id="notice" class="notice" hidden></div>
+
+        <section class="metrics" aria-label="Improvement metrics">
+          <article class="metric card">
+            <span class="metric-label">BASELINE SCORE</span>
+            <strong id="baseline-score">—</strong>
+            <span id="baseline-detail">Frozen initial policy</span>
+          </article>
+          <article class="metric card">
+            <span class="metric-label">LATEST CANDIDATE</span>
+            <strong id="latest-score">—</strong>
+            <span id="latest-detail">Waiting for generation</span>
+          </article>
+          <article class="metric card">
+            <span class="metric-label">HIDDEN HOLDOUT</span>
+            <strong id="holdout-score">—</strong>
+            <span id="holdout-detail">Promotion gate ≥ 75%</span>
+          </article>
+          <article class="metric card metric-accent">
+            <span class="metric-label">MEASURED IMPROVEMENT</span>
+            <strong id="uplift-score">—</strong>
+            <span id="uplift-detail">Relative to active baseline</span>
+          </article>
+        </section>
+
+        <section class="workflow card">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">DURABLE LOOPGRAPH</span>
+              <h2>Execution topology</h2>
+            </div>
+            <span id="event-count" class="subtle-label">0 persisted events</span>
+          </div>
+          <div class="pipeline" id="pipeline">
+            <div class="pipeline-node" data-stage="execute"><span>01</span><strong>EVOLVE</strong><small>DSH agent</small></div>
+            <div class="pipeline-arrow">→</div>
+            <div class="pipeline-node" data-stage="verify"><span>02</span><strong>EVALUATE</strong><small>Train + holdout</small></div>
+            <div class="pipeline-arrow">→</div>
+            <div class="pipeline-node" data-stage="hitl"><span>03</span><strong>REVIEW</strong><small>Human gate</small></div>
+            <div class="pipeline-arrow">→</div>
+            <div class="pipeline-node" data-stage="promote"><span>04</span><strong>PROMOTE</strong><small>Versioned skill</small></div>
+            <div class="pipeline-arrow">↺</div>
+            <div class="pipeline-node" data-stage="rollback"><span>05</span><strong>ROLLBACK</strong><small>Safe recovery</small></div>
+          </div>
+          <div class="workflow-actions">
+            <button id="run-button" class="button button-primary" disabled>Run until review</button>
+            <button id="step-button" class="button button-secondary" disabled>Advance one step</button>
+            <button id="approve-button" class="button button-success" disabled>Approve &amp; promote</button>
+            <button id="pause-button" class="button button-secondary" disabled>Pause</button>
+            <button id="resume-button" class="button button-secondary" disabled>Resume</button>
+            <button id="rollback-button" class="button button-danger" disabled>Rollback</button>
+          </div>
+        </section>
+
+        <section class="details-grid">
+          <article class="card detail-card">
+            <div class="section-heading">
+              <div><span class="eyebrow">INDEPENDENT EVALUATION</span><h2>Generation scorecards</h2></div>
+              <span class="subtle-label">8 TRAIN / 8 HOLDOUT</span>
+            </div>
+            <div id="generation-list" class="generation-list">
+              <p class="empty-state">Start an experiment to establish the active baseline.</p>
+            </div>
+          </article>
+
+          <article class="card detail-card">
+            <div class="section-heading">
+              <div><span class="eyebrow">IMMUTABLE AUDIT JOURNAL</span><h2>Execution trace</h2></div>
+              <span id="trace-label" class="subtle-label">LIVE EVENTS</span>
+            </div>
+            <div id="event-list" class="event-list">
+              <p class="empty-state">Every execution, verification and release decision appears here.</p>
+            </div>
+          </article>
+        </section>
+
+        <section class="details-grid bottom-grid">
+          <article class="card detail-card code-card">
+            <div class="section-heading">
+              <div><span class="eyebrow">PERSISTENT SELF-MODIFICATION</span><h2>What actually changed</h2></div>
+              <span id="skill-version" class="subtle-label">NO ACTIVE VERSION</span>
+            </div>
+            <pre id="code-diff"><code>The evolved recovery scaffold and source diff will appear here.</code></pre>
+          </article>
+
+          <article class="card detail-card probe-card">
+            <div class="section-heading">
+              <div><span class="eyebrow">OUT-OF-SAMPLE CAPABILITY</span><h2>Probe the active skill</h2></div>
+            </div>
+            <p class="probe-copy">Run a new execution trace against the currently promoted policy.</p>
+            <form id="probe-form">
+              <label for="probe-input">FAILURE TRACE</label>
+              <input id="probe-input" value="403 Forbidden: deployment policy denied access" />
+              <button class="button button-primary" id="probe-button" type="submit" disabled>Evaluate live trace</button>
+            </form>
+            <div id="probe-result" class="probe-result">
+              <span>ACTIVE DECISION</span>
+              <strong>—</strong>
+            </div>
+            <p id="skill-location" class="skill-location">Native DSH skill not materialized yet.</p>
+          </article>
+        </section>
+      </main>
+
+      <footer>
+        <span>LOOPGRAPH · DSH-FIRST · HARNESS-NEUTRAL</span>
+        <span>FROZEN MODEL / DURABLE GOVERNANCE / MEASURABLE IMPROVEMENT</span>
+      </footer>
+    </div>
+    <aside id="demo-tour" class="demo-tour" aria-label="Interactive interview walkthrough" hidden>
+      <div class="tour-header">
+        <span class="tour-kicker">✦ INTERACTIVE WALKTHROUGH</span>
+        <button id="tour-close" class="tour-close" type="button" aria-label="Close demo guide">×</button>
+      </div>
+      <div class="tour-progress"><span id="tour-progress-fill"></span></div>
+      <span id="tour-step-count" class="tour-step-count">STEP 1 OF 7</span>
+      <h2 id="tour-title">Start the governed experiment</h2>
+      <p id="tour-description">Choose deterministic replay and create an experiment. No API key is required.</p>
+      <p id="tour-evidence" class="tour-evidence">What to notice: the seed recovery policy scores only 12.5%.</p>
+      <div class="tour-actions">
+        <button id="tour-focus" class="button button-primary" type="button">Next: Create experiment →</button>
+        <button id="tour-dismiss" class="tour-dismiss" type="button">Skip guide</button>
+      </div>
+    </aside>
+  </body>
+</html>

@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "loopgraph-supervisor"
+version = "0.1.0"
+description = "A DSH-first, harness-neutral, durable supervisor for observable agent loops."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Jiawen Zhang" }]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dsh = ["deepseek-harness-sdk>=0.1.0rc6,<0.2"]
+dev = ["ruff>=0.6", "mypy>=1.11"]
+
+[project.scripts]
+loopgraph = "loopgraph.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+loopgraph = ["static/*.html", "static/*.css", "static/*.js"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+packages = ["loopgraph"]

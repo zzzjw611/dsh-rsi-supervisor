@@ -1,0 +1,14 @@
+services:
+  loopgraph:
+    build: .
+    ports:
+      - "8787:8787"
+    environment:
+      PORT: "8787"
+      LOOPGRAPH_DATA_DIR: /data
+    volumes:
+      - loopgraph-data:/data
+    restart: unless-stopped
+
+volumes:
+  loopgraph-data:

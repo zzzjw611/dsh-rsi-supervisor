@@ -1,0 +1,30 @@
+name: Deploy after verified main push
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger the configured hosting-provider deploy hook
+        env:
+          DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
+        run: |
+          if [ -z "$DEPLOY_WEBHOOK_URL" ]; then
+            echo "::notice::Set repository secret DEPLOY_WEBHOOK_URL to enable automatic hosting deployment."
+            exit 0
+          fi
+          curl --fail --silent --show-error \
+            --request POST \
+            --output /dev/null \
+            "$DEPLOY_WEBHOOK_URL"
+          echo "Deployment hook accepted the verified main-branch release."
