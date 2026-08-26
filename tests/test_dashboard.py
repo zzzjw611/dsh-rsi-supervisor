@@ -60,6 +60,7 @@ class DashboardTest(unittest.TestCase):
             ("/", "text/html", b"A frozen agent"),
             ("/dashboard", "text/html", b"A frozen agent"),
             ("/assets/app.css", "text/css", b".pipeline-node"),
+            ("/assets/replay.js", "text/javascript", b"LoopGraphStaticReplay"),
             ("/assets/app.js", "text/javascript", b"/api/rsi/environment"),
         ):
             with self.subTest(route=route):
@@ -89,6 +90,9 @@ class DashboardTest(unittest.TestCase):
         self.assertIn('id="tour-launch"', html)
         self.assertIn('id="tour-focus"', html)
         self.assertIn("INTERACTIVE WALKTHROUGH", html)
+        self.assertIn('id="hosted-replay-note"', html)
+        self.assertIn('src="assets/replay.js"', html)
+        self.assertNotIn('src="/assets/', html)
 
         self.connection.request("GET", "/assets/app.js")
         response = self.connection.getresponse()
@@ -101,6 +105,17 @@ class DashboardTest(unittest.TestCase):
         self.assertIn("function executeGuideStep()", javascript)
         self.assertIn("target.click()", javascript)
         self.assertIn("Next:", javascript)
+        self.assertIn("state.staticReplay", javascript)
+
+        self.connection.request("GET", "/assets/replay.js")
+        response = self.connection.getresponse()
+        replay = response.read().decode()
+        self.assertEqual(response.status, 200)
+        self.assertIn("HOSTED", replay.upper())
+        self.assertIn("human_review.requested", replay)
+        self.assertIn("release.promoted", replay)
+        self.assertIn("release.rolled_back", replay)
+        self.assertIn("localStorage", replay)
 
         self.connection.request("GET", "/assets/app.css")
         response = self.connection.getresponse()

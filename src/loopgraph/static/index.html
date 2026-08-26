@@ -8,13 +8,14 @@
       content="A governed recursive self-improvement control plane for DeepSeek Harness."
     />
     <title>LoopGraph · Recursive Control Plane</title>
-    <link rel="stylesheet" href="/assets/app.css" />
-    <script defer src="/assets/app.js"></script>
+    <link rel="stylesheet" href="assets/app.css" />
+    <script defer src="assets/replay.js"></script>
+    <script defer src="assets/app.js"></script>
   </head>
   <body>
     <div class="page-shell">
       <header class="topbar">
-        <a class="brand" href="/" aria-label="LoopGraph home">
+        <a class="brand" href="./" aria-label="LoopGraph home">
           <span class="brand-mark" aria-hidden="true">◈</span>
           <span>LOOPGRAPH <span class="brand-muted">/ CONTROL PLANE</span></span>
         </a>
@@ -61,6 +62,20 @@
             <button id="new-run" class="button button-primary">New experiment</button>
           </div>
         </section>
+
+        <aside id="hosted-replay-note" class="runtime-note" hidden>
+          <div>
+            <strong>HOSTED INTERACTIVE REPLAY</strong>
+            <span>
+              This public walkthrough runs a deterministic state machine in your browser—no API key,
+              model call, or shared backend. The repository runs the same flow through durable SQLite
+              and the real DSH adapter.
+            </span>
+          </div>
+          <a href="https://github.com/zzzjw611/dsh-rsi-supervisor" target="_blank" rel="noreferrer">
+            Inspect runnable backend ↗
+          </a>
+        </aside>
 
         <div id="notice" class="notice" hidden></div>
 

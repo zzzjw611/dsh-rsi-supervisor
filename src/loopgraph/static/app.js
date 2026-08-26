@@ -1,6 +1,14 @@
 "use strict";
 
-const state = { snapshot: null, environment: null, busy: false, guideOpen: true, probeVerified: false };
+const replayClient = window.LoopGraphStaticReplay;
+const state = {
+  snapshot: null,
+  environment: null,
+  busy: false,
+  guideOpen: true,
+  probeVerified: false,
+  staticReplay: Boolean(replayClient?.isEnabled()),
+};
 const element = (id) => document.getElementById(id);
 const percent = (value) => value == null ? "—" : `${Math.round(value * 1000) / 10}%`;
 const escapeHtml = (value) => String(value)
@@ -11,6 +19,7 @@ const escapeHtml = (value) => String(value)
   .replaceAll("'", "&#39;");
 
 async function request(path, options = {}) {
+  if (state.staticReplay) return replayClient.request(path, options);
   const response = await fetch(path, {
     ...options,
     headers: { "Content-Type": "application/json", ...options.headers },
@@ -45,10 +54,20 @@ async function guarded(operation) {
 async function loadEnvironment() {
   state.environment = await request("/api/rsi/environment");
   const chip = element("environment-chip");
+  element("hosted-replay-note").hidden = !state.staticReplay;
+  document.body.classList.toggle("static-replay", state.staticReplay);
+  const liveOption = element("mode-select").querySelector('option[value="dsh"]');
+  if (state.staticReplay) {
+    chip.className = "environment-chip";
+    chip.textContent = "HOSTED INTERACTIVE REPLAY";
+    liveOption.disabled = true;
+    liveOption.textContent = "Live DSH · run locally";
+    element("trace-label").textContent = "BROWSER REPLAY EVENTS";
+    return;
+  }
   const ready = state.environment.live_ready;
   chip.className = `environment-chip ${ready ? "" : "offline"}`;
   chip.textContent = ready ? "DEEPSEEK LIVE READY" : "REPLAY READY · LIVE NEEDS SETUP";
-  const liveOption = element("mode-select").querySelector('option[value="dsh"]');
   liveOption.textContent = ready ? "Live DeepSeek Harness" : "Live DSH · setup required";
 }
 
@@ -77,9 +96,13 @@ function render(snapshot) {
   element("holdout-detail").textContent = latest && latest.holdout_score >= .75 ? "Holdout gate passed" : "Promotion gate ≥ 75%";
   element("uplift-score").textContent = delta == null ? "—" : `${delta >= 0 ? "+" : ""}${Math.round(delta * 1000) / 10} pp`;
   element("uplift-detail").textContent = report.promoted ? "Approved and durably promoted" : "Relative to active baseline";
-  element("event-count").textContent = `${snapshot.events.length} persisted events`;
+  element("event-count").textContent = state.staticReplay
+    ? `${snapshot.events.length} browser-persisted replay events`
+    : `${snapshot.events.length} persisted events`;
   element("skill-version").textContent = report.active_version_id.slice(0, 14).toUpperCase();
-  element("skill-location").textContent = report.dsh_skill.materialized
+  element("skill-location").textContent = state.staticReplay
+    ? "HOSTED REPLAY · Native DSH skill projection is exercised by the runnable local backend."
+    : report.dsh_skill.materialized
     ? `.dsh/skills/${report.dsh_skill.name}/SKILL.md · ACTIVE PROJECTION`
     : "Native DSH skill has not been materialized.";
 

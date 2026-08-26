@@ -4,6 +4,14 @@ A runnable MVP in which **DeepSeek Harness improves the agent's own
 failure-recovery scaffold**, proves the improvement on a held-out benchmark,
 then promotes or rolls back the resulting version through a durable LoopGraph.
 
+**[Open the hosted interactive interview replay](https://zzzjw611.github.io/dsh-rsi-supervisor/)**
+
+The hosted page is intentionally a deterministic, browser-persisted replay: it
+lets reviewers operate the complete seven-step control-plane story immediately,
+without credentials or a shared mutable backend. It is labeled as such in the
+UI. The runnable Python application below executes the same flow through the
+real supervisor, SQLite journal, subprocess verifier, and optional DSH adapter.
+
 The model is frozen. The supervisor is frozen. The evaluator is frozen. The only
 thing allowed to evolve is an explicit, versioned recovery skill:
 
@@ -52,7 +60,17 @@ the walkthrough at any time or reopen it with **✦ Demo guide**.
 
 Replay needs no API key, third-party package, frontend build, or internet access.
 
-## Container deployment and GitHub automation
+## Hosted walkthrough, container runtime, and GitHub automation
+
+Every successful `main` CI run publishes the same packaged dashboard assets to
+GitHub Pages. The Pages runtime replaces REST calls with an isolated browser
+state machine, so a reviewer can safely demonstrate candidate generation,
+holdout rejection, pause/resume, HITL approval, promotion, capability probing,
+and rollback. Replay state is stored only in that reviewer's browser.
+
+GitHub Pages does **not** run Python, DSH, or the SQLite supervisor. This boundary
+is deliberate and visible in the UI; the hosted walkthrough is presentation
+evidence, while the following container is the executable systems evidence.
 
 Run the same dashboard in a portable container with a persistent SQLite volume:
 
@@ -67,12 +85,9 @@ your hosting provider. Without that volume, deployment and container replacement
 would discard the very recovery history the assignment is intended to preserve.
 
 GitHub Actions runs the full test suite and builds the deployment container on
-every push. To turn a successful `main` push into an actual hosted deployment,
-create a deploy hook on your chosen Python/container hosting platform and add
-its URL to the repository secret `DEPLOY_WEBHOOK_URL`. The included deployment
-workflow then invokes that hook only after CI passes. Choosing a host, linking
-its account, granting repository access, and approving any paid persistent disk
-remain explicit account-owner decisions.
+every push. Only after CI succeeds does the Pages workflow publish the hosted
+replay. It needs no deploy webhook, hosting account, API key, or payment method.
+The deployed release SHA is exposed at `release.txt` for traceability.
 
 The bundled demo server has no authentication. Keep public deployments in replay
 mode and do not configure `DEEPSEEK_API_KEY` on an internet-accessible instance

@@ -1,0 +1,54 @@
+name: Deploy interview replay to GitHub Pages
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the CI-verified release
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Build the static interview replay
+        run: |
+          mkdir -p _site/assets
+          cp src/loopgraph/static/index.html _site/index.html
+          cp src/loopgraph/static/app.css _site/assets/app.css
+          cp src/loopgraph/static/replay.js _site/assets/replay.js
+          cp src/loopgraph/static/app.js _site/assets/app.js
+          touch _site/.nojekyll
+          printf '%s\n' "${{ github.event.workflow_run.head_sha || github.sha }}" > _site/release.txt
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
